@@ -4,9 +4,137 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Filter_Desktop"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="Web Filter Browser"
+        Height="800"
+        Width="950"
+        Background="Transparent"
+        AllowsTransparency="True"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None">
+    <materialDesign:Card Margin="16" UniformCornerRadius="10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Barra de Herramientas -->
+            <DockPanel LastChildFill="False" Background="{DynamicResource MaterialDesignPaper}" Margin="10">
+                <!-- Controles de Navegación y Búsqueda -->
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                    <Button x:Name="BtnBack" Content="Atrás" Style="{DynamicResource MaterialDesignFlatButton}" Click="BtnBack_Click"/>
+                    <Button x:Name="BtnForward" Content="Adelante" Style="{DynamicResource MaterialDesignFlatButton}" Click="BtnForward_Click"/>
+                    <Separator Style="{DynamicResource MaterialDesignSeparator}" />
+                    <TextBox x:Name="TxtSearch" Width="400" Style="{DynamicResource MaterialDesignTextBox}" />
+                    <Button x:Name="BtnGo" Content="Ir" Style="{DynamicResource MaterialDesignFlatButton}" Click="BtnGo_Click"/>
+                    <Button x:Name="BtnReload" Content="Recargar" Style="{DynamicResource MaterialDesignFlatButton}" Click="BtnReload_Click"/>
+                </StackPanel>
+
+                <!-- Botones de Control de Ventana -->
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <Button x:Name="BtnMinimize" Command="{Binding MinimizeCommand}" Style="{DynamicResource MaterialDesignFlatButton}" HorizontalAlignment="Right" Click="BtnMinimize_Click">
+                        <materialDesign:PackIcon Kind="WindowMinimize" />
+                    </Button>
+                    <Button x:Name="BtnMaximizeRestore" Command="{Binding MaximizeRestoreCommand}" Style="{DynamicResource MaterialDesignFlatButton}" HorizontalAlignment="Right" Click="BtnMaximizeRestore_Click">
+                        <materialDesign:PackIcon Kind="WindowMaximize" />
+                    </Button>
+                    <Button x:Name="BtnClose" Command="{Binding CloseCommand}" Style="{DynamicResource MaterialDesignFlatButton}" HorizontalAlignment="Right" Click="BtnClose_Click">
+                        <materialDesign:PackIcon Kind="Close" />
+                    </Button>
+                </StackPanel>
+            </DockPanel>
+
+            <!-- Contenido Principal -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="325"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Panel de Configuración de Filtrado -->
+                <Border x:Name="BorderConfig" Grid.Column="0" Margin="10" BorderBrush="Black" BorderThickness="1" CornerRadius="5" Background="{DynamicResource MaterialDesignCardBackground}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="10">
+                            <TextBlock x:Name="TxtConfigurations" Text="Configuraciones" FontWeight="Bold" Margin="0,0,0,10" TextAlignment="Center"/>
+
+                            <!-- Sección de Categorías -->
+                            <Border x:Name="BorderCategories" BorderBrush="Black" BorderThickness="0.5" CornerRadius="5" Background="{DynamicResource MaterialDesignCardBackground}" Margin="10">
+                                <StackPanel Margin="10">
+                                    <TextBlock x:Name="TxtCategories" Text="Categorías" FontWeight="Bold" Margin="0,0,0,10"/>
+                                    <ListView x:Name="ListViewCategories" ItemsSource="{Binding PermittedCategories}" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                        <!-- Más CheckBox de categorías aquí -->
+                                    </ListView>
+                                    <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+                                        <TextBox x:Name="TxtNewCategory" materialDesign:HintAssist.HelperText="Nueva categoría" Style="{DynamicResource MaterialDesignTextBox}" Width="200"/>
+                                        <Button x:Name="BtnAddCategory" Content="Agregar" Style="{DynamicResource MaterialDesignFlatButton}" Margin="0,20,0,0" Click="BtnAddCategory_Click"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Sección de URLs -->
+                            <Border x:Name="BorderUrls" BorderBrush="Black" BorderThickness="0.5" CornerRadius="5" Background="{DynamicResource MaterialDesignCardBackground}" Margin="10">
+                                <StackPanel Margin="10">
+                                    <TextBlock x:Name="TxtUrls" Text="URLs Permitidas/Bloqueadas" FontWeight="Bold" Margin="0,0,0,10"/>
+                                    <TextBox x:Name="TxtAddUrl" materialDesign:HintAssist.HelperText="Agregar URL" Style="{DynamicResource MaterialDesignTextBox}"/>
+                                    <ComboBox x:Name="CmbCategories" materialDesign:HintAssist.HelperText="Agregar categoria" Style="{DynamicResource MaterialDesignOutlinedComboBox}" Margin="0,20,0,0"/>
+                                    <CheckBox x:Name="CbxAddCmbCategories" Content="Activar categoria" Style="{DynamicResource MaterialDesignAccentCheckBox}" Margin="0,20,0,0"/>
+                                    <Button x:Name="BtnAddPermitted" Content="Agregar a permitidas" Style="{DynamicResource MaterialDesignFlatButton}" Margin="10,20,10,5" Click="BtnAddPermitted_Click"/>
+                                    <Button x:Name="BtnAddBlocked" Content="Agregar a bloqueadas" Style="{DynamicResource MaterialDesignFlatButton}" Margin="10,0,10,10" Click="BtnAddBlocked_Click"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Lista de URLs Permitidas -->
+                            <Border x:Name="BorderPermittedUrls" BorderBrush="Black" BorderThickness="0.5" CornerRadius="5" Background="{DynamicResource MaterialDesignCardBackground}" Margin="10">
+                                <StackPanel Margin="10">
+                                    <TextBlock x:Name="TxtPermittedUrls" Text="URLs Permitidas" FontWeight="Bold" Margin="0,0,0,10"/>
+                                    <ListView x:Name="ListViewPermittedUrls">
+                                        <ListViewItem>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock x:Name="TxtPermittedUrl1" Text="https://example.com" Margin="5"/>
+                                                <Button x:Name="BtnDeletePermittedUrl1" Style="{DynamicResource MaterialDesignFlatButton}">
+                                                    <materialDesign:PackIcon Kind="Delete" />
+                                                </Button>
+                                                <Button x:Name="BtnChangePermittedUrl1" Style="{DynamicResource MaterialDesignFlatButton}">
+                                                    <materialDesign:PackIcon Kind="Exchange" />
+                                                </Button>
+                                            </StackPanel>
+                                        </ListViewItem>
+                                        <!-- Más URLs permitidas aquí -->
+                                    </ListView>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Lista de URLs Bloqueadas -->
+                            <Border x:Name="BorderBlockedUrls" BorderBrush="Black" BorderThickness="0.5" CornerRadius="5" Background="{DynamicResource MaterialDesignCardBackground}" Margin="10">
+                                <StackPanel Margin="10">
+                                    <TextBlock x:Name="TxtBlockedUrls" Text="URLs Bloqueadas" FontWeight="Bold" Margin="0,0,0,10"/>
+                                    <ListView x:Name="ListViewBlockedUrls">
+                                        <ListViewItem>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock x:Name="TxtBlockedUrl1" Text="https://example.org" Margin="5"/>
+                                                <Button x:Name="BtnDeleteBlockedUrl1" Style="{DynamicResource MaterialDesignFlatButton}">
+                                                    <materialDesign:PackIcon Kind="Delete" />
+                                                </Button>
+                                                <Button x:Name="BtnChangeBlockedUrl1" Style="{DynamicResource MaterialDesignFlatButton}">
+                                                    <materialDesign:PackIcon Kind="Exchange" />
+                                                </Button>
+                                            </StackPanel>
+                                        </ListViewItem>
+                                        <!-- Más URLs bloqueadas aquí -->
+                                    </ListView>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Navegador Web -->
+                <Border x:Name="BorderWebBrowser" Grid.Column="1" Margin="10" BorderBrush="Black" BorderThickness="1" CornerRadius="10">
+                    <WebBrowser x:Name="WebBrowserView" Margin="5"/>
+                </Border>
+            </Grid>
+        </Grid>
+    </materialDesign:Card>
 </Window>
