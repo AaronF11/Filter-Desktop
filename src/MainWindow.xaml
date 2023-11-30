@@ -1,10 +1,11 @@
-﻿<Window x:Class="Filter_Desktop.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Filter_Desktop"
+        xmlns:local="clr-namespace:Filter_Desktop.src"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:Wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf" x:Class="Filter_Desktop.src.MainWindow"
         mc:Ignorable="d"
         Title="Web Filter Browser"
         Height="800"
@@ -12,7 +13,7 @@
         Background="Transparent"
         AllowsTransparency="True"
         WindowStartupLocation="CenterScreen"
-        WindowStyle="None">
+        WindowStyle="None" Loaded="Window_Loaded">
     <materialDesign:Card Margin="16" UniformCornerRadius="10">
         <Grid>
             <Grid.RowDefinitions>
@@ -56,14 +57,14 @@
                 <!-- Panel de Configuración de Filtrado -->
                 <Border x:Name="BorderConfig" Grid.Column="0" Margin="10" BorderBrush="Black" BorderThickness="1" CornerRadius="5" Background="{DynamicResource MaterialDesignCardBackground}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <StackPanel Margin="10">
+                        <StackPanel Margin="10" Cursor="">
                             <TextBlock x:Name="TxtConfigurations" Text="Configuraciones" FontWeight="Bold" Margin="0,0,0,10" TextAlignment="Center"/>
 
                             <!-- Sección de Categorías -->
                             <Border x:Name="BorderCategories" BorderBrush="Black" BorderThickness="0.5" CornerRadius="5" Background="{DynamicResource MaterialDesignCardBackground}" Margin="10">
                                 <StackPanel Margin="10">
                                     <TextBlock x:Name="TxtCategories" Text="Categorías" FontWeight="Bold" Margin="0,0,0,10"/>
-                                    <ListView x:Name="ListViewCategories" ItemsSource="{Binding PermittedCategories}" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                    <ListView x:Name="ListViewCategories" ItemsSource="{Binding Categories}" ScrollViewer.VerticalScrollBarVisibility="Auto">
                                         <!-- Más CheckBox de categorías aquí -->
                                     </ListView>
                                     <StackPanel Orientation="Vertical" Margin="0,10,0,0">
@@ -78,8 +79,9 @@
                                 <StackPanel Margin="10">
                                     <TextBlock x:Name="TxtUrls" Text="URLs Permitidas/Bloqueadas" FontWeight="Bold" Margin="0,0,0,10"/>
                                     <TextBox x:Name="TxtAddUrl" materialDesign:HintAssist.HelperText="Agregar URL" Style="{DynamicResource MaterialDesignTextBox}"/>
-                                    <ComboBox x:Name="CmbCategories" materialDesign:HintAssist.HelperText="Agregar categoria" Style="{DynamicResource MaterialDesignOutlinedComboBox}" Margin="0,20,0,0"/>
-                                    <CheckBox x:Name="CbxAddCmbCategories" Content="Activar categoria" Style="{DynamicResource MaterialDesignAccentCheckBox}" Margin="0,20,0,0"/>
+                                    <ComboBox x:Name="CmbCategories" Style="{DynamicResource MaterialDesignComboBox}" Height="40" Margin="0 30 0 0"/>
+                                    <CheckBox x:Name="CbxAddCmbCategories" Content="Activar categoria" Style="{DynamicResource MaterialDesignAccentCheckBox}" Margin="0,20,0,0" Checked="CbxAddCmbCategories_Checked" Unchecked="CbxAddCmbCategories_Checked"/>
+                                    <Button x:Name="BtnAddCategoryAction" Content="Añadir a categoria" Style="{DynamicResource MaterialDesignFlatButton}" Margin="10,20,10,5" Click="BtnAddCategoryAction_Click"  />
                                     <Button x:Name="BtnAddPermitted" Content="Agregar a permitidas" Style="{DynamicResource MaterialDesignFlatButton}" Margin="10,20,10,5" Click="BtnAddPermitted_Click"/>
                                     <Button x:Name="BtnAddBlocked" Content="Agregar a bloqueadas" Style="{DynamicResource MaterialDesignFlatButton}" Margin="10,0,10,10" Click="BtnAddBlocked_Click"/>
                                 </StackPanel>
@@ -89,20 +91,11 @@
                             <Border x:Name="BorderPermittedUrls" BorderBrush="Black" BorderThickness="0.5" CornerRadius="5" Background="{DynamicResource MaterialDesignCardBackground}" Margin="10">
                                 <StackPanel Margin="10">
                                     <TextBlock x:Name="TxtPermittedUrls" Text="URLs Permitidas" FontWeight="Bold" Margin="0,0,0,10"/>
-                                    <ListView x:Name="ListViewPermittedUrls">
-                                        <ListViewItem>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock x:Name="TxtPermittedUrl1" Text="https://example.com" Margin="5"/>
-                                                <Button x:Name="BtnDeletePermittedUrl1" Style="{DynamicResource MaterialDesignFlatButton}">
-                                                    <materialDesign:PackIcon Kind="Delete" />
-                                                </Button>
-                                                <Button x:Name="BtnChangePermittedUrl1" Style="{DynamicResource MaterialDesignFlatButton}">
-                                                    <materialDesign:PackIcon Kind="Exchange" />
-                                                </Button>
-                                            </StackPanel>
-                                        </ListViewItem>
-                                        <!-- Más URLs permitidas aquí -->
-                                    </ListView>
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <ListView x:Name="ListViewPermittedUrls" ItemsSource="{Binding PermittedUrls}">
+                                            <!-- Más URLs permitidas aquí -->
+                                        </ListView>
+                                    </ScrollViewer>
                                 </StackPanel>
                             </Border>
 
@@ -110,29 +103,15 @@
                             <Border x:Name="BorderBlockedUrls" BorderBrush="Black" BorderThickness="0.5" CornerRadius="5" Background="{DynamicResource MaterialDesignCardBackground}" Margin="10">
                                 <StackPanel Margin="10">
                                     <TextBlock x:Name="TxtBlockedUrls" Text="URLs Bloqueadas" FontWeight="Bold" Margin="0,0,0,10"/>
-                                    <ListView x:Name="ListViewBlockedUrls">
-                                        <ListViewItem>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock x:Name="TxtBlockedUrl1" Text="https://example.org" Margin="5"/>
-                                                <Button x:Name="BtnDeleteBlockedUrl1" Style="{DynamicResource MaterialDesignFlatButton}">
-                                                    <materialDesign:PackIcon Kind="Delete" />
-                                                </Button>
-                                                <Button x:Name="BtnChangeBlockedUrl1" Style="{DynamicResource MaterialDesignFlatButton}">
-                                                    <materialDesign:PackIcon Kind="Exchange" />
-                                                </Button>
-                                            </StackPanel>
-                                        </ListViewItem>
-                                        <!-- Más URLs bloqueadas aquí -->
-                                    </ListView>
+                                    <ListView x:Name="ListViewBlockedUrls" ItemsSource="{Binding BlockedUrls}"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
 
-                <!-- Navegador Web -->
                 <Border x:Name="BorderWebBrowser" Grid.Column="1" Margin="10" BorderBrush="Black" BorderThickness="1" CornerRadius="10">
-                    <WebBrowser x:Name="WebBrowserView" Margin="5"/>
+                    <Wpf:WebView2 Name="WebView" Margin="10" Source="https://github.com"/>
                 </Border>
             </Grid>
         </Grid>
