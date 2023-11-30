@@ -117,6 +117,7 @@ namespace Filter_Desktop.src
                     }
                 });
 
+				return;
             }
 
             if (BlockedUrls.Any(_url => _url.Source.Equals(url, StringComparison.OrdinalIgnoreCase)))
